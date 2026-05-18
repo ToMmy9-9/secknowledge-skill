@@ -534,16 +534,16 @@ AI → Web 攻击链:
 
 | 编号 | 风险名称 | 本方法论对应 | Reference 文件 |
 |------|----------|-------------|----------------|
-| LLM01 | Prompt Injection | AI应用测试 → Prompt注入 | ai-app-security.md |
-| LLM02 | Sensitive Information Disclosure | AI数据测试 → 数据泄露 | ai-data-security.md |
-| LLM03 | Supply Chain Vulnerabilities | AI基座测试 → 供应链 | ai-baseline-security.md |
-| LLM04 | Data and Model Poisoning | AI数据测试 → 数据投毒 | ai-data-security.md |
-| LLM05 | Improper Output Handling | AI应用测试 → 不安全输出 | ai-app-security.md |
-| LLM06 | Excessive Agency | AI身份测试 → 权限管控 | ai-identity-security.md |
-| LLM07 | System Prompt Leakage | AI数据测试 → Prompt泄露 | ai-data-security.md |
-| LLM08 | Vector and Embedding Weaknesses | AI基座测试 → 向量DB | ai-baseline-security.md |
-| LLM09 | Misinformation | AI模型测试 → 幻觉/虚假信息 | ai-model-security.md |
-| LLM10 | Unbounded Consumption | AI基座测试 → 拒绝服务 | ai-baseline-security.md |
+| LLM01 | Prompt Injection | AI应用测试 → Prompt注入 | ai-app-prompt.md |
+| LLM02 | Sensitive Information Disclosure | AI数据测试 → 数据泄露 | ai-data-app.md |
+| LLM03 | Supply Chain Vulnerabilities | AI基座测试 → 供应链 | ai-baseline-deploy.md |
+| LLM04 | Data and Model Poisoning | AI数据测试 → 数据投毒 | ai-data-train.md |
+| LLM05 | Improper Output Handling | AI应用测试 → 不安全输出 | ai-app-train.md |
+| LLM06 | Excessive Agency | AI身份测试 → 权限管控 | ai-identity-app.md |
+| LLM07 | System Prompt Leakage | AI数据测试 → Prompt泄露 | ai-data-app.md |
+| LLM08 | Vector and Embedding Weaknesses | AI基座测试 → 向量DB | ai-baseline-deploy.md |
+| LLM09 | Misinformation | AI模型测试 → 幻觉/虚假信息 | ai-model-hallucination.md + ai-model-content.md |
+| LLM10 | Unbounded Consumption | AI基座测试 → 拒绝服务 | ai-baseline-app.md |
 
 ### 10.2 OWASP Agentic AI Security Top 10 (2026)
 
@@ -551,16 +551,16 @@ AI → Web 攻击链:
 
 | 编号 | 风险名称 | 本方法论对应 | Reference 文件 |
 |------|----------|-------------|----------------|
-| ASI01 | Agent Goal Hijack | 通过直接/间接指令注入操纵Agent目标 | ai-app-security.md |
-| ASI02 | Tool Misuse & Exploitation | Agent动态调用工具(API/DB/服务)的攻击面 | ai-app-security.md |
-| ASI03 | Agent Identity & Privilege Abuse | Agent身份和权限凭据滥用 | ai-identity-security.md |
-| ASI04 | Agentic Supply Chain Compromise | Agent依赖和第三方组件供应链漏洞 | ai-baseline-security.md |
-| ASI05 | Unexpected Code Execution | Agent推理和工具调用导致的意外代码执行 | ai-app-security.md, ai-baseline-security.md |
-| ASI06 | Memory & Context Poisoning | 持久化上下文的长期投毒和状态腐败 | ai-app-security.md |
-| ASI07 | Insecure Inter-Agent Communication | 多Agent系统间通信的操纵和信任利用 | ai-identity-security.md |
-| ASI08 | Cascading Agent Failures | 单点漏洞通过工具/记忆/Agent链传播 | ai-model-security.md |
-| ASI09 | Human-Agent Trust Exploitation | 用户过度信任Agent输出 | ai-data-security.md |
-| ASI10 | Rogue Agents | Agent被入侵或超出授权参数运行 | ai-identity-security.md |
+| ASI01 | Agent Goal Hijack | 通过直接/间接指令注入操纵Agent目标 | ai-app-agent-cot.md |
+| ASI02 | Tool Misuse & Exploitation | Agent动态调用工具(API/DB/服务)的攻击面 | ai-app-agent-cot.md |
+| ASI03 | Agent Identity & Privilege Abuse | Agent身份和权限凭据滥用 | ai-identity-app.md |
+| ASI04 | Agentic Supply Chain Compromise | Agent依赖和第三方组件供应链漏洞 | ai-baseline-deploy.md |
+| ASI05 | Unexpected Code Execution | Agent推理和工具调用导致的意外代码执行 | ai-app-agent-cot.md, ai-baseline-app.md |
+| ASI06 | Memory & Context Poisoning | 持久化上下文的长期投毒和状态腐败 | ai-app-prompt.md |
+| ASI07 | Insecure Inter-Agent Communication | 多Agent系统间通信的操纵和信任利用 | ai-identity-app.md |
+| ASI08 | Cascading Agent Failures | 单点漏洞通过工具/记忆/Agent链传播 | ai-model-misuse.md |
+| ASI09 | Human-Agent Trust Exploitation | 用户过度信任Agent输出 | ai-data-app.md |
+| ASI10 | Rogue Agents | Agent被入侵或超出授权参数运行 | ai-identity-app.md |
 
 ### 10.3 OWASP Web Security Testing Guide (WSTG v4.2)
 
@@ -568,15 +568,15 @@ AI → Web 攻击链:
 
 | WSTG 类别 | 测试项 | 本方法论对应 | Reference 文件 |
 |-----------|--------|-------------|----------------|
-| WSTG-INPV | 输入验证测试 | SQL注入/XSS/命令执行 | web-injection.md |
+| WSTG-INPV | 输入验证测试 | SQL注入/XSS/命令执行 | web-sqli.md / web-xss.md / web-rce.md |
 | WSTG-ATHZ | 授权测试 | 越权(水平/垂直)/权限绕过 | web-logic-auth.md |
 | WSTG-ATHN | 认证测试 | 密码重置/会话管理/JWT | web-logic-auth.md |
 | WSTG-SESS | 会话管理测试 | Cookie/Session劫持 | web-logic-auth.md |
 | WSTG-BUSL | 业务逻辑测试 | 支付逻辑/条件竞争/流程绕过 | web-logic-auth.md |
-| WSTG-CLNT | 客户端测试 | DOM XSS/前端安全 | web-injection.md |
-| WSTG-CONF | 配置管理测试 | 信息泄露/默认配置/错误配置 | web-file-infra.md + web-deployment-security.md |
+| WSTG-CLNT | 客户端测试 | DOM XSS/前端安全 | web-xss.md |
+| WSTG-CONF | 配置管理测试 | 信息泄露/默认配置/错误配置 | web-leak.md + web-deployment-security.md |
 | WSTG-CRYP | 密码学测试 | 弱加密/证书/传输安全 | web-deployment-security.md |
-| WSTG-ERRH | 错误处理测试 | 错误信息泄露/堆栈跟踪 | web-file-infra.md |
+| WSTG-ERRH | 错误处理测试 | 错误信息泄露/堆栈跟踪 | web-leak.md |
 
 ### 使用建议
 

@@ -62,22 +62,62 @@ OWASP 映射       LLM01-10 / ASI01-10 / WSTG-* 合规编号
 ```
 SKILL.md                              # 入口：速查卡片 + 决策树 + 导航
 references/
-├── web-injection.md                  # SQL注入/XSS/命令执行/XXE/反序列化 (906行)
-├── web-logic-auth.md                 # 越权/支付/密码重置/逻辑漏洞 (582行)
-├── web-file-infra.md                 # 文件上传/遍历/SSRF/信息泄露 (632行)
-├── web-modern-protocols.md           # CORS/GraphQL/HTTP走私/WebSocket/OAuth (348行)
-├── web-deployment-security.md        # 供应链/云部署/框架CVE检测 (449行)
-├── ai-app-security.md                # 34条AI应用风险 + Agent/MCP前沿 (2007行)
-├── ai-model-security.md              # 42条模型安全风险 (2651行)
-├── ai-data-security.md               # 32条数据安全风险 (1715行)
-├── ai-identity-security.md           # 23条身份安全风险 (1272行)
-├── ai-baseline-security.md           # 19条基座安全 + 容器逃逸方法论 (1177行)
-├── gaarm-risk-matrix.md              # 150条AI风险索引表 (158行)
-├── testing-methodology.md            # 统一测试方法论 (589行)
-└── payloads.md                       # Web+AI双域Payload速查库 (960行)
+├── 【Web 漏洞类型】
+│   ├── web-sqli.md                   # SQL 注入（含 SQLMap 速查）(~245 行)
+│   ├── web-xss.md                    # XSS 跨站脚本 (~187 行)
+│   ├── web-rce.md                    # 命令执行 (~232 行)
+│   ├── web-xxe.md                    # XXE 外部实体注入 (~106 行)
+│   ├── web-deser.md                  # 反序列化 (~151 行)
+│   ├── web-upload.md                 # 文件上传 + Webshell 免杀 (~174 行)
+│   ├── web-traversal.md              # 文件遍历/包含 (~145 行)
+│   ├── web-leak.md                   # 信息泄露 (~136 行)
+│   └── web-ssrf-misc.md              # SSRF + 配置错误 + CMS/URL 附录 (~191 行)
+├── 【Web 业务与现代协议】
+│   ├── web-logic-auth.md             # 越权/支付/密码重置/逻辑漏洞 (582 行)
+│   ├── web-modern-protocols.md       # CORS/GraphQL/HTTP走私/WebSocket/OAuth (348 行)
+│   └── web-deployment-security.md    # 供应链/云部署/框架CVE检测 (449 行)
+├── 【AI 应用安全 - 应用阶段按风险类别细分 + 部署/训练 + 前沿】
+│   ├── ai-app-prompt.md              # 应用阶段细分：Prompt 注入与变种 (~535 行)
+│   ├── ai-app-mcp.md                 # 应用阶段细分：MCP 协议攻击 (~261 行)
+│   ├── ai-app-agent-cot.md           # 应用阶段细分：Agent 与 CoT 攻击 (~536 行)
+│   ├── ai-app-deploy.md              # 部署阶段：API/源码 (~154 行)
+│   ├── ai-app-train.md               # 训练阶段：第三方组件/插件 (~427 行)
+│   └── ai-app-frontier.md            # 前沿：Agent/MCP/Skills 2025-2026 (~121 行)
+├── 【AI 模型安全 - 应用阶段按风险大类细分 + 部署/训练】
+│   ├── ai-model-jailbreak.md         # 应用阶段细分：越狱 GAARM.0027.x (~404 行)
+│   ├── ai-model-hallucination.md     # 应用阶段细分：幻觉 GAARM.0028/0064 (~252 行)
+│   ├── ai-model-content.md           # 应用阶段细分：非合规内容 GAARM.0029.x (~550 行)
+│   ├── ai-model-copyright.md         # 应用阶段细分：版权/商业 GAARM.0030.x (~154 行)
+│   ├── ai-model-misuse.md            # 应用阶段细分：滥用/伪造 GAARM.0031.x/0033/0062/0063 (~543 行)
+│   ├── ai-model-extraction.md        # 应用阶段细分：对抗样本/模型提取 GAARM.0032.x (~363 行)
+│   ├── ai-model-deploy.md            # 部署阶段：文件窃取/参数篡改 (~136 行)
+│   └── ai-model-train.md             # 训练阶段：后门/对齐/投毒 (~292 行)
+├── 【AI 数据安全 - GAARM 三阶段】
+│   ├── ai-data-app.md                # 应用阶段：Prompt 泄露/推断 (~903 行)
+│   ├── ai-data-deploy.md             # 部署阶段：备份/传输/存储 (~230 行)
+│   └── ai-data-train.md              # 训练阶段：内部数据保护/投毒 (~590 行)
+├── 【AI 身份安全 - GAARM 三阶段】
+│   ├── ai-identity-app.md            # 应用阶段：角色逃逸/Agent 伪造 (~906 行)
+│   ├── ai-identity-deploy.md         # 部署阶段：未授权访问 (~226 行)
+│   └── ai-identity-train.md          # 训练阶段：权限设计 (~148 行)
+├── 【AI 基座安全 - GAARM 三阶段 + 实战】
+│   ├── ai-baseline-app.md            # 应用阶段：容器逃逸/DoS (~278 行)
+│   ├── ai-baseline-deploy.md         # 部署阶段：容器/云/供应链 (~551 行)
+│   ├── ai-baseline-train.md          # 训练阶段：开发工具/环境隔离 (~202 行)
+│   └── ai-baseline-escape.md         # 容器与沙箱逃逸实战方法论 (~159 行)
+├── 【核心索引与方法论】
+│   ├── gaarm-risk-matrix.md          # 150条AI风险索引表 (158 行)
+│   └── testing-methodology.md        # 统一测试方法论 (589 行)
 ```
 
-**总计**: 14个文件，约 14,000 行，501KB
+> **拆分原则**：
+> - AI 类一次拆分按 GAARM 三阶段（应用/部署/训练）
+> - AI 应用/模型 应用阶段二次拆分按风险大类（Prompt/MCP/Agent-CoT、越狱/幻觉/内容/版权/滥用/提取）
+> - Web 注入/文件类按漏洞子类型（SQLi/XSS/RCE/XXE/Deser/Upload/Traversal/Leak/SSRF）
+> - Payload 内联在对应主题文件，不独立成文
+> - 全部 38 个 reference 文件 ≤ 1000 行（单次 Read 友好）
+
+**总计**: 38 个 reference 文件 + 1 SKILL.md = 39 个文件 | 最大文件 906 行 | 100% 单次 Read 友好
 
 ## 安装
 
@@ -105,7 +145,7 @@ git clone https://github.com/Pa55w0rd/secknowledge-skill.git ~/.cursor/skills/se
 
 ```
 用户: 对 target.com 进行SQL注入测试
-AI: [自动加载 SKILL.md → web-injection.md → payloads.md]
+AI: [自动加载 SKILL.md → web-sqli.md]
     → 列出高危注入点、数据库指纹识别、WAF绕过技巧、完整利用链
 ```
 
@@ -113,7 +153,7 @@ AI: [自动加载 SKILL.md → web-injection.md → payloads.md]
 
 ```
 用户: 测试这个chatbot的Prompt注入防护
-AI: [自动加载 SKILL.md → ai-app-security.md → payloads.md]
+AI: [自动加载 SKILL.md → ai-app-prompt.md / ai-app-mcp.md（按风险类别）]
     → 系统化测试直接注入/间接注入/MCP投毒/Agent利用
 ```
 
@@ -129,7 +169,7 @@ AI: [加载跨层攻击链]
 
 ```
 用户: GAARM.0039 是什么风险？
-AI: [查阅 gaarm-risk-matrix.md → ai-app-security.md]
+AI: [查阅 gaarm-risk-matrix.md → ai-app-prompt.md（GAARM.0039 在应用阶段-Prompt 注入类）]
     → 返回完整的攻击概述、案例、风险分析、缓解措施
 ```
 
@@ -147,21 +187,48 @@ AI: [查阅 gaarm-risk-matrix.md → ai-app-security.md]
 ```
 用户请求
 │
-├─ Web应用 ──→ 输入参数? → 注入测试 [web-injection.md]
-│              文件功能? → 上传/遍历 [web-file-infra.md]
-│              业务逻辑? → 越权/支付 [web-logic-auth.md]
-│              现代协议? → CORS/GraphQL/WS [web-modern-protocols.md]
+├─ Web应用 ──→ SQL? → [web-sqli.md]   XSS? → [web-xss.md]   RCE? → [web-rce.md]
+│              文件上传? → [web-upload.md]   遍历? → [web-traversal.md]
+│              业务逻辑? → [web-logic-auth.md]   现代协议? → [web-modern-protocols.md]
 │
-├─ AI应用 ──→ 对话接口? → Prompt注入/越狱 [ai-app-security.md]
-│              Agent/MCP? → 工具滥用/投毒 [ai-app-security.md]
-│              代码执行? → 沙箱逃逸 [ai-baseline-security.md]
+├─ AI应用 ──→ Prompt 注入 → [ai-app-prompt.md]   MCP → [ai-app-mcp.md]   Agent/CoT → [ai-app-agent-cot.md]
+│              越狱 → [ai-model-jailbreak.md]   幻觉 → [ai-model-hallucination.md]
+│              Prompt 泄露/数据窃取 → [ai-data-app.md]
+│              角色逃逸/权限失控 → [ai-identity-app.md]
 │
 ├─ 部署环境 → 供应链/云/框架CVE [web-deployment-security.md]
 │
-├─ 容器沙箱 → 逃逸/持久化/横向移动 [ai-baseline-security.md + payloads.md]
-│
-└─ Payload → 速查库 [payloads.md]
+└─ 容器沙箱 → 逃逸/持久化/横向移动 [ai-baseline-escape.md]
 ```
+
+## 变更日志（Changelog）
+
+### v2.0（2026-05-18）— 结构性重构 + 拆分优化
+
+**SKILL.md 入口升级**:
+- 增加 ❗ 标记的 3 条行为准则（Payload 引用 / 假设 vs 已确认 / 授权边界）+ "每次输出前自检"机制
+- 新增"依赖链约束"节：Step 2 输入 == Step 1 产出、Step 3 引用 ⊆ Step 2 加载列表、禁止重新搜索
+- 流程步骤等式验收：`已引用 + UNABLE TO CITE == 总假设数`
+- 每个 Step 补"失败→重试→降级→不允许跳过"三段式失败路径
+- 触发条件细化：CTF 短代码片段 + 利用思路 → 本 Skill；完整项目目录 + 系统白盒 → code-audit-skill
+
+**reference 拆分**（12 → 38 个文件）:
+- 一次拆分（按 GAARM 三阶段）：5 个 AI 大文件 + 2 个 Web 大文件 → 26 个子文件
+- 二次拆分（ai-model-app.md 2231 行）→ 6 个按风险大类（越狱/幻觉/内容/版权/滥用/提取）
+- 三次拆分（ai-app-app.md 1318 行）→ 3 个按风险类别（Prompt 注入/MCP/Agent-CoT）
+- 最大文件从 2651 → 906 行，**100% reference ≤ 1000 行**
+- 删除冗余的 payloads.md，按场景内联到主 reference
+
+**索引重构**:
+- gaarm-risk-matrix.md 116 条风险按"GAARM 域 + 阶段 + 编号大类"精细映射到 38 个子文件
+- testing-methodology.md OWASP 三框架（LLM01-10 / ASI01-10 / WSTG-*）映射全部对齐新结构
+- SKILL.md 场景导航索引：AI 安全按"安全域 × 阶段 × 风险类别"三层导航
+
+### v1.0（初始版本）— 12 个 reference 文件
+
+WooYun 88,636 案例 + 先知 5,600+ 文档 + GAARM 150 风险 + OWASP 三框架 初始融合。
+
+---
 
 ## 致谢与参考
 
@@ -190,4 +257,4 @@ MIT License
 
 ---
 
-*版本: v1.0 | 作者: Pa55w0rd | 知识融合: WooYun 88,636案例 × 先知 5,600+文档 × GAARM 150风险 × OWASP LLM/ASI/WSTG × 常用 200+安全测试用例*
+*版本: v2.0 (2026-05-18) | 作者: Pa55w0rd | 知识融合: WooYun 88,636案例 × 先知 5,600+文档 × GAARM 150风险 × OWASP LLM/ASI/WSTG × 常用 200+安全测试用例 | 文件结构: 38 个 reference，100% 单次 Read 友好*

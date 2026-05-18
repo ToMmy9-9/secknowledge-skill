@@ -62,22 +62,62 @@ OWASP Mapping          LLM01-10 / ASI01-10 / WSTG-* Compliance IDs
 ```
 SKILL.md                              # Entry: quick-ref cards + decision tree + navigation
 references/
-├── web-injection.md                  # SQL Injection/XSS/Command Exec/XXE/Deserialization (906 lines)
-├── web-logic-auth.md                 # AuthZ Bypass/Payment/Password Reset/Logic Flaws (582 lines)
-├── web-file-infra.md                 # File Upload/Traversal/SSRF/Info Disclosure (632 lines)
-├── web-modern-protocols.md           # CORS/GraphQL/HTTP Smuggling/WebSocket/OAuth (348 lines)
-├── web-deployment-security.md        # Supply Chain/Cloud Deployment/Framework CVE Detection (449 lines)
-├── ai-app-security.md                # 34 AI App Risks + Agent/MCP Frontier (2007 lines)
-├── ai-model-security.md              # 42 Model Security Risks (2651 lines)
-├── ai-data-security.md               # 32 Data Security Risks (1715 lines)
-├── ai-identity-security.md           # 23 Identity Security Risks (1272 lines)
-├── ai-baseline-security.md           # 19 Infra Risks + Container Escape Methodology (1177 lines)
-├── gaarm-risk-matrix.md              # 150 AI Risk Index Table (158 lines)
-├── testing-methodology.md            # Unified Testing Methodology (589 lines)
-└── payloads.md                       # Web + AI Dual-Domain Payload Cheat Sheet (960 lines)
+├── [Web - by vulnerability type]
+│   ├── web-sqli.md                   # SQL Injection + SQLMap cheat (~245 lines)
+│   ├── web-xss.md                    # XSS (~187 lines)
+│   ├── web-rce.md                    # Command Execution (~232 lines)
+│   ├── web-xxe.md                    # XXE External Entity (~106 lines)
+│   ├── web-deser.md                  # Deserialization (~151 lines)
+│   ├── web-upload.md                 # File Upload + Webshell bypass (~174 lines)
+│   ├── web-traversal.md              # Path Traversal / File Inclusion (~145 lines)
+│   ├── web-leak.md                   # Information Disclosure (~136 lines)
+│   └── web-ssrf-misc.md              # SSRF + Misconfig + CMS/URL appendix (~191 lines)
+├── [Web - logic & modern protocols]
+│   ├── web-logic-auth.md             # AuthZ/Payment/Password Reset/Logic (582 lines)
+│   ├── web-modern-protocols.md       # CORS/GraphQL/HTTP Smuggling/WS/OAuth (348 lines)
+│   └── web-deployment-security.md    # Supply Chain/Cloud/Framework CVE (449 lines)
+├── [AI App Security - App phase by risk class + Deploy/Training + Frontier]
+│   ├── ai-app-prompt.md              # App subset: Prompt injection + variants (~535 lines)
+│   ├── ai-app-mcp.md                 # App subset: MCP protocol attacks (~261 lines)
+│   ├── ai-app-agent-cot.md           # App subset: Agent & CoT attacks (~536 lines)
+│   ├── ai-app-deploy.md              # Deploy phase: API/Source (~154 lines)
+│   ├── ai-app-train.md               # Training phase: 3rd-party/Plugins (~427 lines)
+│   └── ai-app-frontier.md            # Frontier: Agent/MCP/Skills 2025-2026 (~121 lines)
+├── [AI Model Security - App phase by risk category + Deploy/Training]
+│   ├── ai-model-jailbreak.md         # App subset: Jailbreak GAARM.0027.x (~404 lines)
+│   ├── ai-model-hallucination.md     # App subset: Hallucination GAARM.0028/0064 (~252 lines)
+│   ├── ai-model-content.md           # App subset: Non-compliant content GAARM.0029.x (~550 lines)
+│   ├── ai-model-copyright.md         # App subset: Copyright/Commercial GAARM.0030.x (~154 lines)
+│   ├── ai-model-misuse.md            # App subset: Misuse/Fakery GAARM.0031.x/0033/0062/0063 (~543 lines)
+│   ├── ai-model-extraction.md        # App subset: Adversarial/Extraction GAARM.0032.x (~363 lines)
+│   ├── ai-model-deploy.md            # Deploy: File theft/Param tamper (~136 lines)
+│   └── ai-model-train.md             # Training: Backdoor/Alignment/Poison (~292 lines)
+├── [AI Data Security - GAARM 3-phase]
+│   ├── ai-data-app.md                # App: Prompt leak/Inference (~903 lines)
+│   ├── ai-data-deploy.md             # Deploy: Backup/Transit/Storage (~230 lines)
+│   └── ai-data-train.md              # Training: Data protection/Poison (~590 lines)
+├── [AI Identity Security - GAARM 3-phase]
+│   ├── ai-identity-app.md            # App: Role escape/Agent spoofing (~906 lines)
+│   ├── ai-identity-deploy.md         # Deploy: Unauthorized access (~226 lines)
+│   └── ai-identity-train.md          # Training: Permission design (~148 lines)
+├── [AI Infra Security - GAARM 3-phase + escape]
+│   ├── ai-baseline-app.md            # App: Container escape/DoS (~278 lines)
+│   ├── ai-baseline-deploy.md         # Deploy: Container/Cloud/Supply (~551 lines)
+│   ├── ai-baseline-train.md          # Training: Dev tools/Env isolation (~202 lines)
+│   └── ai-baseline-escape.md         # Container & sandbox escape methodology (~159 lines)
+├── [Core index & methodology]
+│   ├── gaarm-risk-matrix.md          # 150 AI Risk Index Table (158 lines)
+│   └── testing-methodology.md        # Unified Testing Methodology (589 lines)
 ```
 
-**Total**: 14 files, ~14,000 lines, 501KB
+> **Split principles**:
+> - AI files first split by GAARM 3-phase (App/Deploy/Training)
+> - AI App/Model app-phase further split by risk class (Prompt/MCP/Agent-CoT, Jailbreak/Hallucination/Content/Copyright/Misuse/Extraction)
+> - Web injection/file split by vuln subtype (SQLi/XSS/RCE/XXE/Deser/Upload/Traversal/Leak/SSRF)
+> - Payloads inlined per topic file, no standalone payload file
+> - All 38 reference files ≤ 1000 lines (single-Read friendly)
+
+**Total**: 38 reference files + 1 SKILL.md = 39 files | Max file 906 lines | 100% single-Read friendly
 
 ## Installation
 
@@ -105,7 +145,7 @@ Once cloned, the AI will automatically load this Skill when you engage in securi
 
 ```
 User: Test target.com for SQL injection
-AI:   [Auto-loads SKILL.md → web-injection.md → payloads.md]
+AI:   [Auto-loads SKILL.md → web-sqli.md]
       → Lists high-risk injection points, DB fingerprinting, WAF bypass techniques, full exploitation chain
 ```
 
@@ -113,7 +153,7 @@ AI:   [Auto-loads SKILL.md → web-injection.md → payloads.md]
 
 ```
 User: Test this chatbot's prompt injection defenses
-AI:   [Auto-loads SKILL.md → ai-app-security.md → payloads.md]
+AI:   [Auto-loads SKILL.md → ai-app-prompt.md / ai-app-mcp.md (by risk type)]
       → Systematic testing: direct injection / indirect injection / MCP poisoning / Agent exploitation
 ```
 
@@ -129,7 +169,7 @@ AI:   [Loads cross-layer attack chains]
 
 ```
 User: What is GAARM.0039?
-AI:   [Consults gaarm-risk-matrix.md → ai-app-security.md]
+AI:   [Consults gaarm-risk-matrix.md → ai-app-prompt.md (GAARM.0039 is app-phase Prompt injection)]
       → Returns full attack overview, cases, risk analysis, mitigations
 ```
 
@@ -147,21 +187,48 @@ The following keywords automatically trigger Skill loading:
 ```
 User Request
 │
-├─ Web App ──→ Input params?  → Injection testing [web-injection.md]
-│              File features? → Upload/Traversal  [web-file-infra.md]
-│              Business logic?→ AuthZ/Payment     [web-logic-auth.md]
-│              Modern protocols? → CORS/GraphQL/WS [web-modern-protocols.md]
+├─ Web App ──→ SQL? → [web-sqli.md]   XSS? → [web-xss.md]   RCE? → [web-rce.md]
+│              Upload? → [web-upload.md]   Traversal? → [web-traversal.md]
+│              Logic? → [web-logic-auth.md]   Modern? → [web-modern-protocols.md]
 │
-├─ AI App ──→ Chat interface? → Prompt Injection/Jailbreak [ai-app-security.md]
-│              Agent/MCP?     → Tool abuse/Poisoning       [ai-app-security.md]
-│              Code execution?→ Sandbox escape             [ai-baseline-security.md]
+├─ AI App ──→ Prompt inj → [ai-app-prompt.md]   MCP → [ai-app-mcp.md]   Agent/CoT → [ai-app-agent-cot.md]
+│              Jailbreak → [ai-model-jailbreak.md]   Hallucination → [ai-model-hallucination.md]
+│              Prompt leak/Data theft → [ai-data-app.md]
+│              Role escape/Permission → [ai-identity-app.md]
 │
 ├─ Deployment → Supply chain/Cloud/Framework CVE [web-deployment-security.md]
 │
-├─ Container/Sandbox → Escape/Persistence/Lateral movement [ai-baseline-security.md + payloads.md]
-│
-└─ Payloads → Cheat sheet [payloads.md]
+└─ Container/Sandbox → Escape/Persistence/Lateral movement [ai-baseline-escape.md]
 ```
+
+## Changelog
+
+### v2.0 (2026-05-18) — Structural refactor + split optimization
+
+**SKILL.md entry upgrade**:
+- 3 behavioral rules with ❗ marker (Payload citation / Hypothesis vs Confirmed / Authorization boundary) + "self-check before every output" mechanism
+- New "Dependency chain constraints" section: Step 2 input == Step 1 output, Step 3 references ⊆ Step 2 loaded set, no re-searching
+- Equation-based acceptance criteria: `cited count + UNABLE TO CITE count == total hypothesis count`
+- Each Step adds "fail → retry → degrade → no skipping" 3-stage failure path
+- Trigger refinement: CTF short code snippet + exploit idea → this Skill; full project dir + systematic white-box → code-audit-skill
+
+**Reference split** (12 → 38 files):
+- 1st split (by GAARM 3-phase): 5 AI files + 2 Web files → 26 sub-files
+- 2nd split (ai-model-app.md 2231 lines) → 6 risk categories (Jailbreak/Hallucination/Content/Copyright/Misuse/Extraction)
+- 3rd split (ai-app-app.md 1318 lines) → 3 risk classes (Prompt injection/MCP/Agent-CoT)
+- Max file 2651 → 906 lines, **100% references ≤ 1000 lines**
+- Removed redundant payloads.md; payloads now inlined per scenario
+
+**Index reconstruction**:
+- gaarm-risk-matrix.md 116 risk entries remapped by "GAARM domain + phase + risk category" to 38 sub-files
+- testing-methodology.md OWASP three frameworks (LLM01-10 / ASI01-10 / WSTG-*) mappings fully aligned
+- SKILL.md scenario navigation: AI security by "domain × phase × risk category" 3-level navigation
+
+### v1.0 (Initial) — 12 reference files
+
+Initial fusion of WooYun 88,636 cases + Xianzhi 5,600+ docs + GAARM 150 risks + OWASP three frameworks.
+
+---
 
 ## Acknowledgments & References
 
@@ -190,4 +257,4 @@ MIT License
 
 ---
 
-*Version: v1.0 | Author: Pa55w0rd | Knowledge Fusion: WooYun 88,636 cases × Xianzhi 5,600+ papers × GAARM 150 risks × OWASP LLM/ASI/WSTG*
+*Version: v2.0 (2026-05-18) | Author: Pa55w0rd | Knowledge Fusion: WooYun 88,636 cases × Xianzhi 5,600+ papers × GAARM 150 risks × OWASP LLM/ASI/WSTG × 200+ test cases | Structure: 38 references, 100% single-Read friendly*

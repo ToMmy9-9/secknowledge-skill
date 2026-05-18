@@ -10,8 +10,9 @@ description: |
   - 安全概念讨论（"什么是 XSS"、"SQL 注入原理是什么"）→ 普通问答
   - 非安全性质的 code review / debug / 性能优化 → code-audit-skill 或其他
   - 修复语法错误 / 业务逻辑 bug → 普通编程协助
-  - 纯 Web 白盒代码审计（Java/JS 深度审计）→ code-audit-skill
+  - 纯 Web 白盒代码审计（完整项目目录 / Source-Sink 污点分析）→ code-audit-skill
   - 仅引用 CVE 编号查文档 → WebSearch
+  边界细则: CTF 短代码片段 + 利用思路 → 本 Skill；完整项目目录 + 系统白盒审计 → code-audit-skill
 ---
 
 # Web 和 AI 安全测试知识库
@@ -49,7 +50,7 @@ description: |
 | 内容类型 | 正确输出 | 禁止输出 |
 |---------|---------|---------|
 | CVE 编号 | 引用具体 reference 文件和章节，或标 "UNABLE TO CITE — 建议 WebSearch 核实" | 编造 CVE-YYYY-NNNN |
-| Payload | 从 `references/payloads.md` 或 `web-*.md` 引用具体章节 | 凭印象写 payload |
+| Payload | 从 `references/web-*.md` 或 `references/ai-*.md` 内 payload 章节引用 | 凭印象写 payload |
 | GAARM 风险编号 | 引用 `references/gaarm-risk-matrix.md` | 自造编号 |
 | OWASP 条目 | LLM01-10 / ASI01-10 / WSTG-* 引用 `testing-methodology.md §10.x` | 改写编号含义 |
 | 工具/命令 | 仅使用在 reference 中出现过的，或明确标注 "通用命令（未在 reference 中核对）" | 伪造工具参数 |
@@ -86,27 +87,44 @@ description: |
 
 ## 使用流程
 
+**依赖链约束（贯穿三步，强制）**:
+- Step 2 输入 == Step 1 的"已定位 reference 列表"，不得新加文件
+- Step 3 引用集合 ⊆ Step 2 的"已加载列表"，禁止在 Step 3 重新搜索 reference
+- Step 3 Checkpoint 中的引用计数必须能在 Step 2 Checkpoint 中找到对应来源
+
 **Step 1: 目标分类 + reference 定位**
 - 判断：Web / AI / Web+AI 混合 / 容器沙箱
-- 定位：按"场景导航索引"找到对应 reference 文件
+- 定位：按"场景导航索引"找到对应 reference 文件，记为列表 `L1`
 
-✅ Checkpoint: `Step 1 完成: 目标类型={X}, 已定位 reference={N} 个文件`
+失败降级:
+- 目标信息不足无法分类 → 触发歧义澄清问题，不猜测；不允许默认归类为 "Web+AI 混合"
+- 场景导航索引未覆盖该场景 → 标注 "UNABLE TO CITE: 场景 {X} 不在索引内"，列表 `L1` 为空，进入 Step 3 时只能输出方法论级建议
 
-**Step 2: 按需加载 reference（懒加载）**
-- 每次加载 1 个文件，单次 ≤ 1000 tokens
-- 失败降级：Read 失败 → Bash cat；Grep 无命中 → 标注"UNABLE TO CITE"
+✅ Checkpoint: `Step 1 完成: 目标类型={X}, |L1| == 场景导航索引匹配数 = {N}`
 
-✅ Checkpoint: `Step 2 完成: 已加载 {列表}, 合计 {X} tokens`
+**Step 2: 按需加载 Step 1 定位的 reference（懒加载）**
+- 输入: Step 1 产出的列表 `L1`；记本步加载集合为 `L2`，必须满足 `L2 ⊆ L1`
+- 每次加载 1 个文件，单次 ≤ 1000 tokens；超出预算的 reference（如 `ai-identity-app.md` 906 行、`ai-data-app.md` 903 行）必须用 Read offset/limit 或 Grep 定位后再读
+- 禁止在本步加载未在 `L1` 中的文件
+
+失败降级:
+- Read 失败 → 重试 1 次 → 仍失败用 Bash cat → 都失败 → 标注 "UNABLE TO ASSESS: 文件不可读"，从 `L2` 移除该项，不允许跳过到 Step 3
+- Grep 无命中 → 标注 "UNABLE TO CITE: {关键词} 未在 {文件} 中检出"
+- reference 文件不存在 → 标注断链 + 列入待补 reference 清单，不编造内容
+
+✅ Checkpoint: `Step 2 完成: |L2| == |L1| - 不可读文件数 = {M}, 合计 {X} tokens`
 
 **Step 3: 按方法论输出测试思路（L1→L4）**
+- 输入: Step 2 产出的加载集合 `L2`；本步所有引用必须 ⊆ `L2`
 - L1 攻击面识别 → L2 假设构建 → L3 深度利用 → L4 防御反推
-- 每条结论必须引用 reference 行号；无依据 → 标注并停止该线
+- 每条结论必须引用 `L2` 中某文件的具体 section/行号；无依据 → 标注 "UNABLE TO CITE" 并停止该假设线
+- 禁止重新搜索：本步发现需要新 reference → 回到 Step 1 重新定位，而不是直接 Read/Grep
 
-✅ Checkpoint: `Step 3 完成: 输出 N 条假设, M 条已引用, K 条标注 UNABLE TO CITE`
+✅ Checkpoint: `Step 3 完成: 输出 N 条假设, 其中 已引用 M 条 + UNABLE TO CITE K 条 == N (等式验收)`
 
-**失败路径**：
-- reference 文件缺失 → 输出"该场景 reference 缺失，建议补充"，不编造内容
-- 目标模糊 → 触发歧义澄清问题，不猜测
+**全流程交叉验证**:
+- [ ] Step 3 引用的所有文件 ∈ Step 2 的 `L2`（grep 验证）
+- [ ] 已引用条数 + UNABLE TO CITE 条数 == 总假设条数
 
 ## 场景导航索引
 
@@ -120,34 +138,72 @@ description: |
 | OWASP Top 10 映射（LLM/ASI/WSTG）| `testing-methodology.md §10.1-10.3` |
 | GAARM 150 条风险编号 | `references/gaarm-risk-matrix.md` |
 
-### Web 安全
+### Web 安全（按漏洞类型）
 
 | 场景 | reference |
 |------|----------|
-| SQL 注入 / XSS / 命令执行 / XXE / 反序列化 | `references/web-injection.md` |
+| SQL 注入（含 SQLMap 速查）| `references/web-sqli.md` |
+| XSS 跨站脚本 | `references/web-xss.md` |
+| 命令执行（RCE）| `references/web-rce.md` |
+| XXE（XML 外部实体）| `references/web-xxe.md` |
+| 反序列化漏洞 | `references/web-deser.md` |
+| 文件上传（含 Webshell 免杀）| `references/web-upload.md` |
+| 文件遍历 / 文件包含 | `references/web-traversal.md` |
+| 信息泄露（.git / 备份 / 错误信息）| `references/web-leak.md` |
+| SSRF / 服务器配置错误 / CMS+URL 附录 | `references/web-ssrf-misc.md` |
 | 越权 / 支付 / 密码重置 / 会话 / API 鉴权 | `references/web-logic-auth.md` |
-| 文件上传 / 路径遍历 / SSRF | `references/web-file-infra.md` |
 | CORS / GraphQL / HTTP 走私 / WebSocket / OAuth | `references/web-modern-protocols.md` |
 | 供应链 / 云配置 / 容器 / CI/CD / 框架 CVE | `references/web-deployment-security.md` |
 
-### AI/LLM 安全
+### AI/LLM 安全（按 GAARM 阶段）
+
+| 安全域 | 应用阶段 | 部署阶段 | 训练阶段 |
+|--------|---------|---------|---------|
+| **AI 应用**（应用阶段按风险大类细分↓）| 见下方细分表 | `ai-app-deploy.md` | `ai-app-train.md` |
+| **AI 模型**（应用阶段按风险大类细分↓）| 见下方细分表 | `ai-model-deploy.md` | `ai-model-train.md` |
+| **AI 数据**（Prompt 泄露/窃取/推断）| `ai-data-app.md` | `ai-data-deploy.md` | `ai-data-train.md` |
+| **AI 身份**（角色逃逸/Agent 伪造）| `ai-identity-app.md` | `ai-identity-deploy.md` | `ai-identity-train.md` |
+| **AI 基座**（容器/沙箱/供应链）| `ai-baseline-app.md` | `ai-baseline-deploy.md` | `ai-baseline-train.md` |
+
+**AI 应用 - 应用阶段按风险大类**:
+
+| 风险类别 | GAARM 编号 | reference |
+|---------|----------|----------|
+| Prompt 注入与变种（直接/间接/XSS/Memory/蠕虫/混淆/编码/反向诱导/多模态）| GAARM.0039, 0040.x, 0043.x, 0044, 0045, 0061 | `ai-app-prompt.md` |
+| MCP 协议攻击（地毯式骗局/工具投毒/指令覆盖/隐藏指令）| GAARM.0046.x | `ai-app-mcp.md` |
+| Agent 与 CoT 攻击（Agent 利用/SSRF/RCE/CoT/查询注入/环境注入）| GAARM.0041.x, 0042.x, 0047, 0056.001, 0060 | `ai-app-agent-cot.md` |
+
+**AI 模型 - 应用阶段按风险大类**:
+
+| 风险类别 | GAARM 编号 | reference |
+|---------|----------|----------|
+| 越狱（DAN/Many-shot/对抗后缀/概念激活）| GAARM.0027.x | `ai-model-jailbreak.md` |
+| 幻觉（事实/跨模态）| GAARM.0028.x, 0064 | `ai-model-hallucination.md` |
+| 非合规内容（偏见/暴力/政治/虚假/诱导）| GAARM.0029.x | `ai-model-content.md` |
+| 版权与商业违法 | GAARM.0030.x | `ai-model-copyright.md` |
+| 功能滥用与信息伪造（图/音/视频/钓鱼）| GAARM.0031.x, 0033, 0062, 0063 | `ai-model-misuse.md` |
+| 对抗样本与模型提取 | GAARM.0032.x | `ai-model-extraction.md` |
+
+**专项 reference**:
+- AI Agent / MCP / Skills 2025-2026 前沿风险 → `references/ai-app-frontier.md`
+- 容器与沙箱逃逸实战方法论 → `references/ai-baseline-escape.md`
+
+### Payload 速查（按场景在主 reference 中查找）
 
 | 场景 | reference |
 |------|----------|
-| Prompt 注入 / MCP 投毒 / Agent 滥用（GAARM 34 条）| `references/ai-app-security.md` |
-| 越狱 / 幻觉 / 对抗样本 / 模型窃取（GAARM 42 条）| `references/ai-model-security.md` |
-| System Prompt 泄露 / 数据窃取 / 推断（GAARM 32 条）| `references/ai-data-security.md` |
-| 角色逃逸 / 权限失控 / 多 Agent 伪造（GAARM 23 条）| `references/ai-identity-security.md` |
-| 沙箱逃逸 / 容器 / 供应链（GAARM 19 条）| `references/ai-baseline-security.md` |
-
-### Payload 速查
-
-| 场景 | reference |
-|------|----------|
-| Web+AI 全域 Payload 库 | `references/payloads.md` |
-| 逃逸 Payload（cgroup/Docker/内核）| `payloads.md §17` |
-| 持久化（.bashrc/crontab/SSH）| `payloads.md §18` |
-| 反弹 Shell / 横向移动 | `payloads.md §19` |
+| SQL 注入 Payload | `references/web-sqli.md` |
+| XSS Payload | `references/web-xss.md` |
+| RCE / 命令执行 Payload | `references/web-rce.md` |
+| 反序列化 / XXE Payload | `references/web-deser.md` / `references/web-xxe.md` |
+| 文件上传绕过 / 路径遍历 Payload | `references/web-upload.md` / `references/web-traversal.md` |
+| SSRF Payload | `references/web-ssrf-misc.md` |
+| Web 现代协议 Payload（GraphQL/HTTP 走私/WebSocket）| `references/web-modern-protocols.md` |
+| Prompt 注入 Payload | `references/ai-app-prompt.md` |
+| MCP 投毒 Payload | `references/ai-app-mcp.md` |
+| Agent / CoT 注入 Payload | `references/ai-app-agent-cot.md` |
+| 越狱 / 对抗后缀 Payload | `references/ai-model-jailbreak.md` |
+| 容器逃逸 / 持久化 / 横向移动 | `references/ai-baseline-escape.md` |
 
 ## 零结果处理
 
