@@ -66,16 +66,17 @@
 
 ### 1.3 GAARM 风险矩阵
 
-**结构: 6安全域 × 3阶段 = 150+风险条目**
+**结构: 5 安全域 × 3 阶段 = 173 风险**（AISS 社区快照 2026-06-17；编号见 `gaarm-risk-matrix.md`）
 
 | 安全域 | 训练阶段 | 部署阶段 | 应用阶段 |
 |--------|----------|----------|----------|
-| **AI应用安全** | 不安全输出处理/框架漏洞/第三方组件 | API管理不当/源代码投毒 | Prompt注入/CoT注入/MCP攻击/Agent利用 |
-| **AI模型安全** | 模型后门/对齐不足/投毒 | 参数篡改/文件窃取 | 越狱/幻觉/对抗样本/功能滥用 |
-| **AI数据安全** | 训练数据投毒/泄露/偏见 | 存储攻击/传输劫持 | 隐私窃取/Prompt泄露/推断攻击 |
-| **AI身份安全** | 权限设计缺陷/环境认证 | 未授权访问/凭据滥用 | 角色逃逸/会话劫持/Agent伪造 |
+| **AI应用安全** | 不安全输出处理/框架漏洞/第三方组件 | API管理不当/源代码投毒 | Prompt注入/CoT注入/MCP攻击/Agent利用/**工具链误调用·循环失控（2026新增）** |
+| **AI模型安全** | 模型后门/对齐不足/投毒 | 参数篡改/文件窃取 | 越狱/幻觉/对抗样本/功能滥用/**推理链污染·规划路径篡改（2026新增）** |
+| **AI数据安全** | 训练数据投毒/泄露/偏见 | 存储攻击/传输劫持 | 隐私窃取/Prompt泄露/推断攻击/**RAG投毒·记忆投毒（2026新增）** |
+| **AI身份安全** | 权限设计缺陷/环境认证 | 未授权访问/凭据滥用 | 角色逃逸/会话劫持/Agent伪造/**多Agent协同失控（2026新增）** |
 | **AI基座安全** | 开发工具漏洞/环境隔离 | 容器漏洞/云平台/供应链 | 容器逃逸/拒绝服务/代码执行逃逸 |
-| **AI合规治理** | 数据合规/隐私保护法规 | 部署审计/合规检查 | 内容合规/版权/偏见歧视 |
+
+> 注: GAARM 为 **5 安全域**（非 6）；"AI合规治理"属合规对标视角，不是 GAARM 安全域，见 §10 OWASP/合规映射。社区现版以命名威胁矩阵组织，2026 增量条目暂无公开数字编号（禁止编造）。
 
 ---
 
@@ -534,15 +535,15 @@ AI → Web 攻击链:
 
 | 编号 | 风险名称 | 本方法论对应 | Reference 文件 |
 |------|----------|-------------|----------------|
-| LLM01 | Prompt Injection | AI应用测试 → Prompt注入 | ai-app-prompt.md |
-| LLM02 | Sensitive Information Disclosure | AI数据测试 → 数据泄露 | ai-data-app.md |
-| LLM03 | Supply Chain Vulnerabilities | AI基座测试 → 供应链 | ai-baseline-deploy.md |
-| LLM04 | Data and Model Poisoning | AI数据测试 → 数据投毒 | ai-data-train.md |
+| LLM01 | Prompt Injection | AI应用测试 → Prompt注入 | ai-app-prompt-1.md |
+| LLM02 | Sensitive Information Disclosure | AI数据测试 → 数据泄露 | ai-data-app-1.md |
+| LLM03 | Supply Chain Vulnerabilities | AI基座测试 → 供应链 | ai-baseline-deploy-2.md |
+| LLM04 | Data and Model Poisoning | AI数据测试 → 数据投毒 | ai-data-train-1.md + ai-data-train-2.md |
 | LLM05 | Improper Output Handling | AI应用测试 → 不安全输出 | ai-app-train.md |
-| LLM06 | Excessive Agency | AI身份测试 → 权限管控 | ai-identity-app.md |
-| LLM07 | System Prompt Leakage | AI数据测试 → Prompt泄露 | ai-data-app.md |
-| LLM08 | Vector and Embedding Weaknesses | AI基座测试 → 向量DB | ai-baseline-deploy.md |
-| LLM09 | Misinformation | AI模型测试 → 幻觉/虚假信息 | ai-model-hallucination.md + ai-model-content.md |
+| LLM06 | Excessive Agency | AI身份测试 → 权限管控 | ai-identity-app-2.md |
+| LLM07 | System Prompt Leakage | AI数据测试 → Prompt泄露 | ai-data-app-1.md |
+| LLM08 | Vector and Embedding Weaknesses | AI基座测试 → 向量DB | ai-baseline-deploy-1.md |
+| LLM09 | Misinformation | AI模型测试 → 幻觉/虚假信息 | ai-model-hallucination.md + ai-model-content-2.md |
 | LLM10 | Unbounded Consumption | AI基座测试 → 拒绝服务 | ai-baseline-app.md |
 
 ### 10.2 OWASP Agentic AI Security Top 10 (2026)
@@ -551,16 +552,16 @@ AI → Web 攻击链:
 
 | 编号 | 风险名称 | 本方法论对应 | Reference 文件 |
 |------|----------|-------------|----------------|
-| ASI01 | Agent Goal Hijack | 通过直接/间接指令注入操纵Agent目标 | ai-app-agent-cot.md |
-| ASI02 | Tool Misuse & Exploitation | Agent动态调用工具(API/DB/服务)的攻击面 | ai-app-agent-cot.md |
-| ASI03 | Agent Identity & Privilege Abuse | Agent身份和权限凭据滥用 | ai-identity-app.md |
-| ASI04 | Agentic Supply Chain Compromise | Agent依赖和第三方组件供应链漏洞 | ai-baseline-deploy.md |
-| ASI05 | Unexpected Code Execution | Agent推理和工具调用导致的意外代码执行 | ai-app-agent-cot.md, ai-baseline-app.md |
-| ASI06 | Memory & Context Poisoning | 持久化上下文的长期投毒和状态腐败 | ai-app-prompt.md |
-| ASI07 | Insecure Inter-Agent Communication | 多Agent系统间通信的操纵和信任利用 | ai-identity-app.md |
-| ASI08 | Cascading Agent Failures | 单点漏洞通过工具/记忆/Agent链传播 | ai-model-misuse.md |
-| ASI09 | Human-Agent Trust Exploitation | 用户过度信任Agent输出 | ai-data-app.md |
-| ASI10 | Rogue Agents | Agent被入侵或超出授权参数运行 | ai-identity-app.md |
+| ASI01 | Agent Goal Hijack | 通过直接/间接指令注入操纵Agent目标 | ai-app-agent-cot-1.md + ai-app-agent-cot-2.md |
+| ASI02 | Tool Misuse & Exploitation | Agent动态调用工具(API/DB/服务)的攻击面 | ai-app-agent-cot-1.md + ai-app-agent-cot-2.md |
+| ASI03 | Agent Identity & Privilege Abuse | Agent身份和权限凭据滥用 | ai-identity-app-1.md + ai-identity-app-2.md |
+| ASI04 | Agentic Supply Chain Compromise | Agent依赖和第三方组件供应链漏洞 | ai-baseline-deploy-2.md |
+| ASI05 | Unexpected Code Execution | Agent推理和工具调用导致的意外代码执行 | ai-app-agent-cot-2.md, ai-baseline-app.md |
+| ASI06 | Memory & Context Poisoning | 持久化上下文的长期投毒和状态腐败 | ai-app-prompt-1.md |
+| ASI07 | Insecure Inter-Agent Communication | 多Agent系统间通信的操纵和信任利用 | ai-identity-app-1.md |
+| ASI08 | Cascading Agent Failures | 单点漏洞通过工具/记忆/Agent链传播 | ai-model-misuse-1.md |
+| ASI09 | Human-Agent Trust Exploitation | 用户过度信任Agent输出 | ai-data-app-2.md |
+| ASI10 | Rogue Agents | Agent被入侵或超出授权参数运行 | ai-identity-app-2.md |
 
 ### 10.3 OWASP Web Security Testing Guide (WSTG v4.2)
 
@@ -586,4 +587,4 @@ AI → Web 攻击链:
 
 ---
 
-*方法论版本: v1.0 | 融合: 先知5600+文档 × WooYun 88,636案例 × GAARM 150+风险 × OWASP LLM/Agentic AI/WSTG 三大框架 × 常用 200+安全测试用例*
+*方法论版本: v1.1 | 融合: 先知5600+文档 × WooYun 88,636案例 × GAARM 173风险（5域, AISS 2026-06快照）× OWASP LLM/Agentic AI/WSTG 三大框架 × 常用 200+安全测试用例*

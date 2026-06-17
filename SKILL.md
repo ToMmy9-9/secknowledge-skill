@@ -1,7 +1,7 @@
 ---
 name: secknowledge-skill
 description: |
-  Web+AI 安全测试知识库。融合 WooYun 88,636 案例 + 先知 L1-L4 方法论 + GAARM 150 风险
+  Web+AI 安全测试知识库。融合 WooYun 88,636 案例 + 先知 L1-L4 方法论 + GAARM 173 风险
   + OWASP Top 10 (LLM/ASI/WSTG)。
   TRIGGER when 任务是实战安全测试：渗透测试、漏洞挖掘/利用、红队攻防、安全审计 (SAST/DAST)、
   CTF、AI/LLM 安全测试 (Prompt 注入/越狱/MCP/Agent/沙箱逃逸)。用户明确给出测试目标
@@ -12,15 +12,34 @@ description: |
   - 修复语法错误 / 业务逻辑 bug → 普通编程协助
   - 纯 Web 白盒代码审计（完整项目目录 / Source-Sink 污点分析）→ code-audit-skill
   - 仅引用 CVE 编号查文档 → WebSearch
+  - Mira 内置 handbook / preview.mira.day 的 PI 红队跑测（tier/TC-ID/resume）→ mira-pi-tester
+  - 用户要构建/维护自己的 markdown 知识库/wiki（本 skill 的"知识库"指内置只读安全语料，非用户可编辑 wiki）→ llm-wiki
+  - 把外部 PI/越狱文章录入 Mira 红队体系（产出 handbook TC 卡）→ mira-pi-ingest
   边界细则: CTF 短代码片段 + 利用思路 → 本 Skill；完整项目目录 + 系统白盒审计 → code-audit-skill
+metadata:
+  version: 2.2.0
 ---
 
 # Web 和 AI 安全测试知识库
 
-> 知识源: WooYun 88,636 漏洞 × 先知 5,600+ 文档 × GAARM 150 AI 风险 × OWASP
+> 知识源: WooYun 88,636 漏洞 × 先知 5,600+ 文档 × GAARM 173 AI 风险（5 域，AISS 2026-06 快照）× OWASP
 > 架构: SKILL.md（路由）→ references/（按场景加载）
 
 ## 触发条件
+
+**路由优先级：现象信号 > 意图+关键词 > 歧义澄清**。用户常描述的是**问题现象**（"agent 又乱调工具了"），而非任务类型（"做个渗透测试"）。先匹配现象信号，命中则进入对应安全测试路径；未命中再走下方意图+关键词的 AND 组合判断。
+
+**现象信号路由（优先于关键词，命中即进入 AI 安全测试路径）**：
+
+| 现象信号（用户原话风格） | 推断风险 → 路由 reference |
+|------------------------|--------------------------|
+| "agent 行为异常 / off-policy / 乱调工具 / 工具调用死循环" | Agent 利用/越权 → `ai-app-agent-cot-*.md` + `ai-identity-app-*.md`；若是多 Agent / MCP 系统 → 见 agent-threat-modeling |
+| "RAG 返回可疑内容 / 检索结果被污染 / 知识库被投毒" | 间接 Prompt 注入/RAG 投毒 → `ai-app-prompt-*.md`（间接注入小节）+ `ai-data-app-*.md` |
+| "输出疑似被注入 / 模型不听系统提示 / 越权回答 / 泄露 system prompt" | 直接/间接 Prompt 注入、角色逃逸、Prompt 泄露 → `ai-app-prompt-*.md` + `ai-identity-app-*.md` + `ai-data-app-*.md` |
+| "WAF 误报 / 被过滤 / payload 被拦 / 绕不过内容审核" | WAF/内容过滤/GuardRails 绕过 → `testing-methodology.md §6`（绕过技巧）+ 对应漏洞类型 reference |
+| "沙箱里跑出来了 / 容器逃逸 / 隔离失效" | 沙箱/容器逃逸 → `ai-baseline-escape.md` + `ai-baseline-deploy-*.md` |
+
+> 现象信号只把任务**路由**到 AI 安全测试路径，不替代行为准则 §2 的"假设 vs 确认"分级与 §3 的授权边界。仍须按"使用流程"三步走 + 引用 reference。
 
 **触发条件（AND 组合）**：
 1. 用户意图是**执行**安全测试（渗透/挖洞/利用/审计） — 非讨论/学习
@@ -36,6 +55,9 @@ description: |
 - 业务 bug：语法错误、空指针、业务逻辑错误（非安全逻辑）→ 普通 debug
 - **深度白盒代码审计**（Source-Sink 污点传播、AST 分析）→ code-audit-skill
 - 查 CVE 文档、工具文档 → WebSearch/Context7
+- **Mira handbook / preview.mira.day 的 PI 红队跑测**（tier/TC-ID/resume）→ mira-pi-tester
+- 用户要**构建/维护自己的 markdown 知识库/wiki**（本 skill 的"知识库"=内置只读安全语料）→ llm-wiki
+- 把**外部 PI/越狱文章录入 Mira 红队体系**（产出 handbook TC 卡）→ mira-pi-ingest
 
 **歧义处理**：目标和意图不明时，先问："目标是什么？你希望做渗透测试 / 代码审计 / 还是了解概念？"
 
@@ -104,7 +126,7 @@ description: |
 
 **Step 2: 按需加载 Step 1 定位的 reference（懒加载）**
 - 输入: Step 1 产出的列表 `L1`；记本步加载集合为 `L2`，必须满足 `L2 ⊆ L1`
-- 每次加载 1 个文件，单次 ≤ 1000 tokens；超出预算的 reference（如 `ai-identity-app.md` 906 行、`ai-data-app.md` 903 行）必须用 Read offset/limit 或 Grep 定位后再读
+- 每次加载 1 个文件，单次 ≤ 1000 tokens；体量较大的 reference（如 `testing-methodology.md` ~589 行、`web-logic-auth.md` ~582 行）必须用 Read offset/limit 或 Grep 定位后再读。已拆分的双文件（`*-1.md` / `*-2.md`）按场景导航索引的 Part 1/Part 2 子风险归属只加载需要的一半
 - 禁止在本步加载未在 `L1` 中的文件
 
 失败降级:
@@ -136,7 +158,8 @@ description: |
 |------|----------|
 | L1-L4 思维金字塔 + WooYun 漏洞公式 + GAARM 映射 | `references/testing-methodology.md` |
 | OWASP Top 10 映射（LLM/ASI/WSTG）| `testing-methodology.md §10.1-10.3` |
-| GAARM 150 条风险编号 | `references/gaarm-risk-matrix.md` |
+| GAARM 173 条风险编号（5 域 × 3 阶段，含 2026 增量）| `references/gaarm-risk-matrix.md` |
+| 类Claw 智能体威胁矩阵（杀伤链 6 阶段 × 36 威胁 + 39 防御，攻防对照 + ATLAS 式编号）| `references/claw-agent-threat-matrix.md` |
 
 ### Web 安全（按漏洞类型）
 
@@ -161,17 +184,17 @@ description: |
 |--------|---------|---------|---------|
 | **AI 应用**（应用阶段按风险大类细分↓）| 见下方细分表 | `ai-app-deploy.md` | `ai-app-train.md` |
 | **AI 模型**（应用阶段按风险大类细分↓）| 见下方细分表 | `ai-model-deploy.md` | `ai-model-train.md` |
-| **AI 数据**（Prompt 泄露/窃取/推断）| `ai-data-app.md` | `ai-data-deploy.md` | `ai-data-train.md` |
-| **AI 身份**（角色逃逸/Agent 伪造）| `ai-identity-app.md` | `ai-identity-deploy.md` | `ai-identity-train.md` |
-| **AI 基座**（容器/沙箱/供应链）| `ai-baseline-app.md` | `ai-baseline-deploy.md` | `ai-baseline-train.md` |
+| **AI 数据**（Prompt 泄露/窃取/推断）| `ai-data-app-1.md`（API/隐私/企业/假定场景/假定角色/元Prompt/关键字/外部数据源泄露）<br>`ai-data-app-2.md`（成员推断/数据操纵/模型反演/推理API窃取/级联幻觉/触发异常/训练推导/隐私窃取）| `ai-data-deploy.md` | `ai-data-train-1.md`（外部数据源/隐私/企业/内部/对话语料投毒）<br>`ai-data-train-2.md`（匿名化/机密/投毒/泄露/篡改/预训练偏见）|
+| **AI 身份**（角色逃逸/Agent 伪造）| `ai-identity-app-1.md`（Action权限/MCP越权/Prompt劫持/假定场景逃逸/假定角色逃逸/云凭证/外部数据源欺骗/多Agent伪造）<br>`ai-identity-app-2.md`（会话劫持/未授权访问/权限管控/模拟对话/角色逃逸/账户劫持/越权访问/遗忘法逃逸）| `ai-identity-deploy.md` | `ai-identity-train.md` |
+| **AI 基座**（容器/沙箱/供应链）| `ai-baseline-app.md` | `ai-baseline-deploy-1.md`（CI&CD/多租户/云平台/不安全配置/向量DB）<br>`ai-baseline-deploy-2.md`（容器集群/部署服务/镜像污染/环境隔离/供应链）| `ai-baseline-train.md` |
 
 **AI 应用 - 应用阶段按风险大类**:
 
 | 风险类别 | GAARM 编号 | reference |
 |---------|----------|----------|
-| Prompt 注入与变种（直接/间接/XSS/Memory/蠕虫/混淆/编码/反向诱导/多模态）| GAARM.0039, 0040.x, 0043.x, 0044, 0045, 0061 | `ai-app-prompt.md` |
+| Prompt 注入与变种（直接/间接/XSS/Memory/蠕虫/混淆/编码/反向诱导/多模态）| GAARM.0039, 0040.x, 0043.x, 0044, 0045, 0061 | `ai-app-prompt-1.md`（Prompt注入/XSS劫持/间接注入/Memory/蠕虫）<br>`ai-app-prompt-2.md`（反向诱导/多模态/对抗编码/关键字混淆/同义词替换）|
 | MCP 协议攻击（地毯式骗局/工具投毒/指令覆盖/隐藏指令）| GAARM.0046.x | `ai-app-mcp.md` |
-| Agent 与 CoT 攻击（Agent 利用/SSRF/RCE/CoT/查询注入/环境注入）| GAARM.0041.x, 0042.x, 0047, 0056.001, 0060 | `ai-app-agent-cot.md` |
+| Agent 与 CoT 攻击（Agent 利用/SSRF/RCE/CoT/查询注入/环境注入）| GAARM.0041.x, 0042.x, 0047, 0056.001, 0060 | `ai-app-agent-cot-1.md`（CoT注入/SSRF探测/代码执行注入）<br>`ai-app-agent-cot-2.md`（Agent利用/思维链干扰&操纵/查询注入/环境注入/预期外代码执行）|
 
 **AI 模型 - 应用阶段按风险大类**:
 
@@ -179,9 +202,9 @@ description: |
 |---------|----------|----------|
 | 越狱（DAN/Many-shot/对抗后缀/概念激活）| GAARM.0027.x | `ai-model-jailbreak.md` |
 | 幻觉（事实/跨模态）| GAARM.0028.x, 0064 | `ai-model-hallucination.md` |
-| 非合规内容（偏见/暴力/政治/虚假/诱导）| GAARM.0029.x | `ai-model-content.md` |
+| 非合规内容（偏见/暴力/政治/虚假/诱导）| GAARM.0029.x | `ai-model-content-1.md`（偏见仇恨/恐怖暴力/政治军事敏感）<br>`ai-model-content-2.md`（虚假信息/诱导不当言论/非合规输出）|
 | 版权与商业违法 | GAARM.0030.x | `ai-model-copyright.md` |
-| 功能滥用与信息伪造（图/音/视频/钓鱼）| GAARM.0031.x, 0033, 0062, 0063 | `ai-model-misuse.md` |
+| 功能滥用与信息伪造（图/音/视频/钓鱼）| GAARM.0031.x, 0033, 0062, 0063 | `ai-model-misuse-1.md`（图片伪造/多模态合规/恶意代码/意图破坏/数据漂移）<br>`ai-model-misuse-2.md`（功能滥用/视频伪造/钓鱼邮件/音频伪造）|
 | 对抗样本与模型提取 | GAARM.0032.x | `ai-model-extraction.md` |
 
 **专项 reference**:
@@ -199,9 +222,9 @@ description: |
 | 文件上传绕过 / 路径遍历 Payload | `references/web-upload.md` / `references/web-traversal.md` |
 | SSRF Payload | `references/web-ssrf-misc.md` |
 | Web 现代协议 Payload（GraphQL/HTTP 走私/WebSocket）| `references/web-modern-protocols.md` |
-| Prompt 注入 Payload | `references/ai-app-prompt.md` |
+| Prompt 注入 Payload | `references/ai-app-prompt-1.md` / `references/ai-app-prompt-2.md` |
 | MCP 投毒 Payload | `references/ai-app-mcp.md` |
-| Agent / CoT 注入 Payload | `references/ai-app-agent-cot.md` |
+| Agent / CoT 注入 Payload | `references/ai-app-agent-cot-1.md` / `references/ai-app-agent-cot-2.md` |
 | 越狱 / 对抗后缀 Payload | `references/ai-model-jailbreak.md` |
 | 容器逃逸 / 持久化 / 横向移动 | `references/ai-baseline-escape.md` |
 
@@ -226,4 +249,4 @@ description: |
 
 ---
 
-*v2.0 | 知识源: WooYun 88,636 × 先知 5,600+ × GAARM 150 × OWASP LLM/ASI/WSTG*
+*v2.2.0 | 知识源: WooYun 88,636 × 先知 5,600+ × GAARM 173（5 域, AISS 2026-06 快照）× OWASP LLM/ASI/WSTG*
